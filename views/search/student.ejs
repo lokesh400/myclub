@@ -1,0 +1,7 @@
+<h2>Applications for roll <%= roll %></h2>
+<% summary.forEach(s => { %>
+  <div>
+    <h3><%= s.club.name %></h3>
+    <p>Status: <%= s.overallStatus %></p>
+  </div>
+<% }) %>

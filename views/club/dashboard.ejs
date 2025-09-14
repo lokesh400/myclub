@@ -1,0 +1,9 @@
+<h2><%= club.name %> Dashboard</h2>
+
+<%- include('../flash.ejs') %>
+
+<ul>
+<% apps.forEach(a => { %>
+  <li><%= a.studentName %> - <%= a.rollNumber %> - Status: <%= a.overallStatus %></li>
+<% }) %>
+</ul>

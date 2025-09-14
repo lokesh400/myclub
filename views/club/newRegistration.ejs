@@ -1,0 +1,17 @@
+
+<%- include('../flash.ejs') %>
+
+<div class="max-w-md mx-auto mt-10 bg-white shadow-md rounded p-6">
+  <h2 class="text-2xl font-bold mb-6 text-center text-indigo-600">New Recruitment</h2>
+
+  <form action="/club/new/registration" method="POST" class="space-y-4">
+
+    <div>
+      <label class="block text-gray-700 font-semibold mb-1">Year</label>
+      <input type="number" name="year" placeholder="e.g., 2025" class="w-full border px-3 py-2 rounded focus:ring focus:ring-indigo-300" required>
+    </div>
+
+    <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Register</button>
+  </form>
+</div>
+

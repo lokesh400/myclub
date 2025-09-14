@@ -1,0 +1,21 @@
+<h1>Welcome, <%= user.username %> (<%= user.role %>)</h1>
+
+<%- include('../flash.ejs') %>
+
+<!-- Search Bar -->
+<form action="/student/recruitments" method="get" class="flex items-center mb-6">
+  <input 
+    type="text" 
+    name="rollNumber" 
+    placeholder="Enter Roll Number" 
+    class="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+    required
+  >
+  <button type="submit" class="bg-blue-500 p-2 rounded-r-lg hover:bg-blue-600 flex items-center justify-center">
+    <!-- Simple search icon (SVG) -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" />
+    </svg>
+  </button>
+</form>
+

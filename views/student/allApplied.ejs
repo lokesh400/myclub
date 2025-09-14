@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Recruitments</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-6">
+
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">Student Recruitments</h1>
+
+  <!-- Search by Roll Number -->
+  <form action="/student/recruitments" method="get" class="flex items-center mb-6 w-full max-w-sm">
+  <input 
+    type="text" 
+    name="rollNumber" 
+    placeholder="Enter Roll Number" 
+    class="flex-1 p-1.5 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+    required
+  >
+  <button type="submit" class="bg-blue-500 px-4 py-2 rounded-r-lg hover:bg-blue-600 flex items-center justify-center">
+    <!-- Search icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" />
+    </svg>
+  </button>
+</form>
+
+
+  <% if (recruitments.length === 0) { %>
+    <p class="text-gray-600">No recruitments found for this roll number.</p>
+  <% } else { %>
+
+  <!-- Table -->
+  <div class="overflow-x-auto shadow-lg rounded-lg bg-white">
+    <table class="min-w-full divide-y divide-gray-200" id="recruitmentsTable">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Club</th>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Recruitment Year</th>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Round</th>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        <% recruitments.forEach(r => { %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-3 clubName"><%= r.clubId.name %></td>
+            <td class="px-6 py-3 year"><%= r.recruitmentId.year %></td>
+            <td class="px-6 py-3 round">
+              <span class="<%= r.round === 1 ? 'bg-yellow-200 text-yellow-800' : r.round === 2 ? 'bg-blue-200 text-blue-800' : 'bg-green-200 text-green-800' %> px-2 py-1 rounded font-semibold">
+                Round <%= r.round %>
+              </span>
+            </td>
+            <td class="px-6 py-3 status">
+              <% if (r.status === 'Rejected') { %>
+                <span class="text-red-600 font-semibold">Rejected (Round <%= r.rejectedAtRound %>)</span>
+              <% } else if (r.status === 'Selected') { %>
+                <span class="text-green-600 font-semibold">Selected</span>
+              <% } else { %>
+                <span class="text-gray-600 font-semibold">Pending</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <% } %>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const table = document.getElementById('recruitmentsTable').getElementsByTagName('tbody')[0];
+
+    // Highlight matched text
+    function highlight(text, search) {
+      if (!search) return text;
+      const regex = new RegExp(`(${search})`, 'gi');
+      return text.replace(regex, '<span class="bg-yellow-200">$1</span>');
+    }
+
+    // Filter table rows
+    function filterTable() {
+      const searchValue = searchInput.value.toLowerCase();
+
+      for (let row of table.rows) {
+        const clubCell = row.querySelector('.clubName').textContent.toLowerCase();
+        const yearCell = row.querySelector('.year').textContent.toLowerCase();
+
+        const matchesSearch = clubCell.includes(searchValue) || yearCell.includes(searchValue);
+
+        // Highlight matched text
+        row.querySelector('.clubName').innerHTML = highlight(row.querySelector('.clubName').textContent, searchValue);
+        row.querySelector('.year').innerHTML = highlight(row.querySelector('.year').textContent, searchValue);
+
+        row.style.display = matchesSearch ? '' : 'none';
+      }
+    }
+
+    searchInput.addEventListener('input', filterTable);
+  </script>
+
+</body>
+</html>
