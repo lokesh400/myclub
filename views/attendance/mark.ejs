@@ -1,0 +1,41 @@
+<div class="max-w-4xl mx-auto bg-white shadow p-6 rounded mt-10">
+  <h2 class="text-2xl font-bold mb-6 text-center">Mark Attendance - Round <%= round %></h2>
+
+  <form method="post" action="/attendance/<%= students[0] ? students[0].recruitmentId : '' %>/<%= round %>">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Name</th>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Roll Number</th>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Club</th>
+          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Attendance</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        <% students.forEach(student => { %>
+          <tr>
+            <td class="px-6 py-3"><%= student.name %></td>
+            <td class="px-6 py-3"><%= student.rollNumber %></td>
+            <td class="px-6 py-3"><%= student.clubId.name %></td>
+            <td class="px-6 py-3">
+              <label class="inline-flex items-center mr-4">
+                <input type="radio" name="attendance[<%= student._id %>]" value="present" class="form-radio text-green-600" required>
+                <span class="ml-2 text-green-700">Present</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="attendance[<%= student._id %>]" value="absent" class="form-radio text-red-600">
+                <span class="ml-2 text-red-700">Absent</span>
+              </label>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="mt-6 text-center">
+      <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+        Save Attendance
+      </button>
+    </div>
+  </form>
+</div>

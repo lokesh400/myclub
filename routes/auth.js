@@ -105,7 +105,7 @@ router.get('/new/user', ensureAuthenticated,requireRole("admin","superadmin"),(r
 
 
 //// create new user post
-router.post('/new/user',ensureAuthenticated,requireRole("admin","superadmin"), async (req, res) => {
+router.post('/new/user',ensureAuthenticated,requireRole("admin"), async (req, res) => {
   try {
     const currentUser = req.user; // who is creating the user
     const clubId = currentUser.club;
@@ -135,7 +135,7 @@ router.post('/new/user',ensureAuthenticated,requireRole("admin","superadmin"), a
       if (err) {
         console.error(err);
         req.flash("error_msg", err.message);
-        return res.redirect("/signup");
+        return res.redirect("/new/user");
       }
 
       const clubName = club.name;
@@ -216,13 +216,13 @@ router.get('/logout', (req, res) => {
 router.get('/dashboard',ensureAuthenticated,requireRole("admin","superadmin"), async (req, res) => {
   if (!req.user) return res.redirect('/login');
   if (req.user.role === 'superadmin') {
-    return res.render('admin/dashboard', {club, layout: 'layouts/admin', user: req.user });
+    return res.render('admin/dashboard', {layout: 'layouts/admin', user: req.user });
   }
   if (req.user.role === 'admin') {
     const club = await Club.findById(req.user.club);
     return res.render('admin/dashboard', {club, layout: 'layouts/admin', user: req.user });
   }
-  return res.render('student/status', {club, layout: 'layouts/public', user: req.user });
+  return res.render('student/status', { layout: 'layouts/public', user: req.user });
 });
 
 module.exports = router;
