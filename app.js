@@ -36,7 +36,7 @@ app.use(session({
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
 }));
 
-app.use(flash())
+app.use(flash());
 
 
 app.use((req, res, next) => {
