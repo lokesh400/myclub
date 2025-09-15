@@ -1,4 +1,8 @@
-<h1>Welcome, <%= user.username %> (<%= user.role %>)</h1>
+<h1>Welcome, <%= user.username %></h1>
+<% if (user.role === 'admin') { %>
+  <h1><b>Club:</b> <%= club.name %></h1>
+<% } %>
+<h1><b>Role:</b><%= user.role %></h1>
 
 <%- include('../flash.ejs') %>
 

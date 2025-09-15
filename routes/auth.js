@@ -5,6 +5,7 @@ const Club = require('../models/Club');
 const Application = require('../models/Application');
 const router = express.Router();
 const nodemailer = require('nodemailer');
+const { ensureAuthenticated, requireRole } = require('../middlewares/auth');
 
 // Example using Gmail SMTP
 const transporter = nodemailer.createTransport({
@@ -24,11 +25,9 @@ transporter.verify(function(error, success) {
   }
 });
 
-module.exports = transporter;
-
 
 // Signup (for students)
-router.get('/signup', async (req, res) => {
+router.get('/signup',ensureAuthenticated,requireRole("superadmin"), async (req, res) => {
   try {
     const clubs = await Club.find().lean(); // get all clubs
     res.render('auth/signup', { title: "Signup", clubs });
@@ -38,7 +37,7 @@ router.get('/signup', async (req, res) => {
   }
 });
 
-router.post('/signup', async (req, res) => {
+router.post('/signup',ensureAuthenticated,requireRole("superadmin"), async (req, res) => {
   try {
     const { username, password, role, club } = req.body;
 
@@ -70,18 +69,20 @@ router.post('/signup', async (req, res) => {
 });
 // Login
 router.get('/login', (req, res) => {
-  res.render('auth/login', { title: "Login" });
+  res.render('auth/login', { title: "Login",
+    layout: 'layouts/public'  
+   });
 });
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", async (err, user, info) => {
     if (err) {
       console.error("Error during authentication:", err);
-      // req.flash("error_msg", "Something went wrong. Please try again.");
+      req.flash("error_msg", "Something went wrong. Please try again.");
       return res.redirect("/login");
     }
     if (!user) {
-      // req.flash("error_msg", info.message || "Invalid credentials.");
+      req.flash("error_msg", info.message || "Invalid credentials.");
       return res.redirect("/login");
     }
     req.login(user, (err) => {
@@ -97,38 +98,53 @@ router.post("/login", (req, res, next) => {
 });
 
 /////// create new user
-router.get('/new/user', (req, res) => {
+router.get('/new/user', ensureAuthenticated,requireRole("admin","superadmin"),(req, res) => {
   const clubId = req.user.role === 'admin' ? req.user.club : null;
   res.render('auth/newUser', { title: "Create New User",clubId });
 });
 
-router.post('/new/user', async (req, res) => {
+
+//// create new user post
+router.post('/new/user',ensureAuthenticated,requireRole("admin","superadmin"), async (req, res) => {
   try {
-    const user = req.user;
-    const clubId = user.club
-    const { username, password } = req.body;
-    const role = 'admin'; // only admin can be created from here
+    const currentUser = req.user; // who is creating the user
+    const clubId = currentUser.club;
+
+    const club = await Club.findById(clubId);
+    if (!club) {
+      req.flash("error_msg", "Club not found!");
+      return res.redirect("/dashboard");
+    }
+
+    const jsecs = club.jsec || []; // array of JSEC emails
+
+    const { username, email } = req.body;
+    const role = "admin"; // only admin can be created from here
+
+    // ✅ Generate a random password
+    const password = generateRandomPassword(8);
+
     const newUser = new User({
       username,
+      email,
       role,
-      club: clubId
+      club: clubId,
     });
+
     User.register(newUser, password, async (err, user) => {
       if (err) {
         console.error(err);
-        req.flash('error_msg', err.message);
-        return res.redirect('/signup');
+        req.flash("error_msg", err.message);
+        return res.redirect("/signup");
       }
 
-      let clubName = '';
-      if (role === 'admin' && clubId) {
-        const clubData = await Club.findById(clubId);
-        clubName = clubData ? clubData.name : '';
-      }
-      const mailOptions = {
+      const clubName = club.name;
+
+      // Email to the newly created user
+      const userMailOptions = {
         from: `"MY CLUB" <${process.env.EMAIL_USER}>`,
-        to: user.username.includes('@') ? user.username : '', // if username is email
-        subject: '✅ Registration Successful',
+        to: user.email || (user.username.includes("@") ? user.username : ""),
+        subject: "✅ Registration Successful",
         html: `
           <h2>Welcome, ${user.username}!</h2>
           <p>Your account has been created successfully.</p>
@@ -136,27 +152,58 @@ router.post('/new/user', async (req, res) => {
             <li><strong>Username:</strong> ${user.username}</li>
             <li><strong>Password:</strong> ${password}</li>
             <li><strong>Role:</strong> ${user.role}</li>
-            ${clubName ? `<li><strong>Club Name:</strong> ${clubName}</li>` : ''}
+            <li><strong>Club Name:</strong> ${clubName}</li>
           </ul>
           <p>Please keep this information safe.</p>
-        `
+        `,
       };
-      try {
-        await transporter.sendMail(mailOptions);
-        console.log('Registration email sent to:', user.username);
-      } catch (emailErr) {
-        console.error('Failed to send email:', emailErr);
+
+      await transporter.sendMail(userMailOptions);
+
+      // Email to all JSEC members for transparency
+      for (const jsecEmail of jsecs) {
+        try {
+          await transporter.sendMail({
+            from: `"MY CLUB" <${process.env.EMAIL_USER}>`,
+            to: jsecEmail,
+            subject: `New Admin Created for ${clubName}`,
+            html: `
+              <p>Hello,</p>
+              <p>A new admin account has been created for the club <strong>${clubName}</strong>.</p>
+              <ul>
+                <li><strong>Username:</strong> ${user.username}</li>
+                <li><strong>Email:</strong> ${user.email}</li>
+                <li><strong>Role:</strong> ${user.role}</li>
+                <li><strong>Created By:</strong> ${currentUser.username}</li>
+              </ul>
+            `,
+          });
+        } catch (mailErr) {
+          console.error(`❌ Failed to notify JSEC: ${jsecEmail}`, mailErr);
+        }
       }
-      req.flash('success_msg', '✅ Signup successful! Check your email for details.');
-      res.redirect('/dashboard');
+
+      req.flash("success_msg", "✅ User created successfully & emails sent!");
+      res.redirect("/dashboard");
     });
 
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', '❌ Something went wrong!');
-    res.redirect('/new/user');
+    req.flash("error_msg", "❌ Something went wrong!");
+    res.redirect("/new/user");
   }
 });
+
+// Random password generator function
+function generateRandomPassword(length = 8) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
 
 // Logout
 router.get('/logout', (req, res) => {
@@ -166,16 +213,16 @@ router.get('/logout', (req, res) => {
 });
 
 // Dashboard (basic redirect based on role)
-router.get('/dashboard', (req, res) => {
+router.get('/dashboard',ensureAuthenticated,requireRole("admin","superadmin"), async (req, res) => {
   if (!req.user) return res.redirect('/login');
-
   if (req.user.role === 'superadmin') {
-    return res.render('admin/dashboard', { layout: 'layouts/admin', user: req.user });
+    return res.render('admin/dashboard', {club, layout: 'layouts/admin', user: req.user });
   }
   if (req.user.role === 'admin') {
-    return res.render('admin/dashboard', { layout: 'layouts/admin', user: req.user });
+    const club = await Club.findById(req.user.club);
+    return res.render('admin/dashboard', {club, layout: 'layouts/admin', user: req.user });
   }
-  return res.render('student/status', { layout: 'layouts/public', user: req.user });
+  return res.render('student/status', {club, layout: 'layouts/public', user: req.user });
 });
 
 module.exports = router;

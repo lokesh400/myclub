@@ -11,28 +11,27 @@
 
   <!-- Search by Roll Number -->
   <form action="/student/recruitments" method="get" class="flex items-center mb-6 w-full max-w-sm">
-  <input 
-    type="text" 
-    name="rollNumber" 
-    placeholder="Enter Roll Number" 
-    class="flex-1 p-1.5 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-    required
-  >
-  <button type="submit" class="bg-blue-500 px-4 py-2 rounded-r-lg hover:bg-blue-600 flex items-center justify-center">
-    <!-- Search icon -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-      <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" />
-    </svg>
-  </button>
-</form>
-
+    <input 
+      type="text" 
+      name="rollNumber" 
+      placeholder="Enter Roll Number" 
+      class="flex-1 p-1.5 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+      required
+    >
+    <button type="submit" class="bg-blue-500 px-4 py-2 rounded-r-lg hover:bg-blue-600 flex items-center justify-center">
+      <!-- Search icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </form>
 
   <% if (recruitments.length === 0) { %>
     <p class="text-gray-600">No recruitments found for this roll number.</p>
   <% } else { %>
 
-  <!-- Table -->
-  <div class="overflow-x-auto shadow-lg rounded-lg bg-white">
+  <!-- Recruitments Table -->
+  <div class="overflow-x-auto shadow-lg rounded-lg bg-white mb-8">
     <table class="min-w-full divide-y divide-gray-200" id="recruitmentsTable">
       <thead class="bg-gray-100">
         <tr>
@@ -57,8 +56,8 @@
                 <span class="text-red-600 font-semibold">Rejected (Round <%= r.rejectedAtRound %>)</span>
               <% } else if (r.status === 'Selected') { %>
                 <span class="text-green-600 font-semibold">Selected</span>
-              <% } else { %>
-                <span class="text-gray-600 font-semibold">Pending</span>
+              <% } else if (r.status === 'Admitted')  { %>
+                <span class="text-gray-600 font-semibold">Admitted</span>
               <% } %>
             </td>
           </tr>
@@ -67,20 +66,46 @@
     </table>
   </div>
 
+  <!-- Associated Clubs Section -->
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Associated Clubs (Admitted)</h2>
+    <% 
+      // Group admitted recruitments by club
+      let admittedClubs = {};
+      recruitments.forEach(r => {
+        if (r.status === 'Admitted') {
+          if (!admittedClubs[r.clubId.name]) admittedClubs[r.clubId.name] = [];
+          admittedClubs[r.clubId.name].push(r);
+        }
+      });
+    %>
+
+    <% Object.keys(admittedClubs).forEach(clubName => { %>
+      <div class="mb-4 p-4 border rounded-lg bg-white shadow-sm">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-2"><%= clubName %></h3>
+        <ul class="list-disc list-inside space-y-1 text-gray-700">
+          <% admittedClubs[clubName].forEach(app => { %>
+            <li>
+              Recruitment Year: <%= app.recruitmentId.year %>, Round: <%= app.round %>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    <% }) %>
+  </div>
+
   <% } %>
 
   <script>
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = document.querySelector('input[name="rollNumber"]');
     const table = document.getElementById('recruitmentsTable').getElementsByTagName('tbody')[0];
 
-    // Highlight matched text
     function highlight(text, search) {
       if (!search) return text;
       const regex = new RegExp(`(${search})`, 'gi');
       return text.replace(regex, '<span class="bg-yellow-200">$1</span>');
     }
 
-    // Filter table rows
     function filterTable() {
       const searchValue = searchInput.value.toLowerCase();
 
@@ -90,7 +115,6 @@
 
         const matchesSearch = clubCell.includes(searchValue) || yearCell.includes(searchValue);
 
-        // Highlight matched text
         row.querySelector('.clubName').innerHTML = highlight(row.querySelector('.clubName').textContent, searchValue);
         row.querySelector('.year').innerHTML = highlight(row.querySelector('.year').textContent, searchValue);
 

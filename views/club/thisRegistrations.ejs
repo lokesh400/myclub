@@ -1,164 +1,205 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Applicants</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 p-6">
+<h1 class="text-3xl font-bold mb-6 text-gray-800">Applicants</h1>
 
-  <h1 class="text-3xl font-bold mb-6 text-gray-800">Applicants</h1>
-
-  <!-- Search & Round Filter -->
-  <div class="flex flex-col md:flex-row gap-4 mb-6">
+<!-- Search, Round Filter & Status Filter -->
+<div class="flex flex-col md:flex-row gap-4 mb-6">
     <input type="text" id="searchInput" placeholder="Search by Roll Number"
-      class="flex-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        class="flex-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-    <select id="roundSelect" class="p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="">All Rounds</option>
-      <option value="1">Round 1</option>
-      <option value="2">Round 2</option>
-      <option value="3">Round 3</option>
+    <select id="roundSelect"
+        class="p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">All Rounds</option>
+        <option value="1">Round 1</option>
+        <option value="2">Round 2</option>
+        <option value="3">Round 3</option>
     </select>
-  </div>
 
-  <!-- Table -->
-  <div class="overflow-x-auto shadow-lg rounded-lg bg-white">
+    <select id="statusSelect"
+        class="p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">All Status</option>
+        <option value="Admitted">Admitted</option>
+        <option value="Selected">Selected</option>
+        <option value="Rejected">Rejected</option>
+    </select>
+
+    <!-- Download Excel button -->
+    <button id="downloadExcelBtn"
+        class="p-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-600">
+        Download Excel
+    </button>
+</div>
+
+<!-- Table -->
+<div class="overflow-x-auto shadow-lg rounded-lg bg-white">
     <table class="min-w-full divide-y divide-gray-200" id="studentsTable">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Name</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Roll Number</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Course</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Branch</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Semester</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Email</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Phone</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Round</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Status</th>
-          <th class="px-6 py-3 text-left text-gray-700 font-semibold">Action</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200 bg-white">
-        <% students.forEach(student => { %>
-          <tr class="hover:bg-gray-50" data-id="<%= student._id %>">
-            <td class="px-6 py-3"><%= student.name %></td>
-            <td class="px-6 py-3 rollNumber"><%= student.rollNumber %></td>
-            <td class="px-6 py-3"><%= student.course %></td>
-            <td class="px-6 py-3"><%= student.branch %></td>
-            <td class="px-6 py-3"><%= student.semester %></td>
-            <td class="px-6 py-3"><%= student.email %></td>
-            <td class="px-6 py-3"><%= student.phoneNumber %></td>
-            <td class="px-6 py-3 round">
-              <span class="<%= student.round === 1 ? 'bg-yellow-200 text-yellow-800' : student.round === 2 ? 'bg-blue-200 text-blue-800' : 'bg-green-200 text-green-800' %> px-2 py-1 rounded font-semibold">
-                Round <%= student.round %>
-              </span>
-            </td>
-            <td class="px-6 py-3 status">
-              <% if(student.status === 'Rejected') { %>
-                <span class="text-red-600 font-semibold">Rejected (Round <%= student.rejectedAtRound %>)</span>
-              <% } else if(student.status === 'Selected') { %>
-                <span class="text-green-600 font-semibold"><%= student.status %></span>
-              <% } else { %>
-                <span class="text-gray-600 font-semibold">Pending</span>
-              <% } %>
-            </td>
-            <td class="px-6 py-3 flex gap-2">
-              <% if(student.status !== 'Rejected') { %>
-                <button class="promoteBtn bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Promote</button>
-                <button class="rejectBtn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
-              <% } else { %>
-                <span class="text-gray-400">N/A</span>
-              <% } %>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-6 py-3">Name</th>
+                <th class="px-6 py-3">Roll Number</th>
+                <th class="px-6 py-3">Course</th>
+                <th class="px-6 py-3">Branch</th>
+                <th class="px-6 py-3">Semester</th>
+                <th class="px-6 py-3">Email</th>
+                <th class="px-6 py-3">Phone</th>
+                <th class="px-6 py-3">Round</th>
+                <th class="px-6 py-3">Status</th>
+                <th class="px-6 py-3">Action</th>
+            </tr>
+        </thead>
+        <tbody id="studentsTbody" class="divide-y divide-gray-200 bg-white">
+            <% students.forEach(student => { %>
+            <tr class="hover:bg-gray-50"
+                data-id="<%= student._id %>"
+                data-round="<%= student.round %>"
+                data-status="<%= student.status %>"
+                data-rejected-at="<%= student.rejectedAtRound || '' %>"
+                data-roll="<%= student.rollNumber %>">
+                <td class="px-6 py-3"><%= student.name %></td>
+                <td class="px-6 py-3 rollNumber"><span class="rollText"><%= student.rollNumber %></span></td>
+                <td class="px-6 py-3"><%= student.course %></td>
+                <td class="px-6 py-3"><%= student.branch %></td>
+                <td class="px-6 py-3"><%= student.semester %></td>
+                <td class="px-6 py-3"><%= student.email %></td>
+                <td class="px-6 py-3"><%= student.phoneNumber %></td>
+                <td class="px-6 py-3 roundCell">Round <%= student.round %></td>
+                <td class="px-6 py-3 statusCell">
+                    <% if (student.status === 'Rejected') { %>
+                        <span class="statusText text-red-600 font-semibold">Rejected (Round <%= student.rejectedAtRound %>)</span>
+                    <% } else if (student.status === 'Selected') { %>
+                        <span class="statusText text-green-600 font-semibold">Selected</span>
+                    <% } else { %>
+                        <span class="statusText text-gray-600 font-semibold">Admitted</span>
+                    <% } %>
+                </td>
+                <td class="px-6 py-3 actionCell">
+                    <% if (student.status !== 'Rejected' && student.status !== 'Admitted') { %>
+                        <button class="promoteBtn bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Promote</button>
+                        <button class="rejectBtn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+                    <% } else { %>
+                        <span class="text-gray-400">N/A</span>
+                    <% } %>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
     </table>
-  </div>
+</div>
 
-  <script>
+<!-- ExcelJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script>
     const searchInput = document.getElementById('searchInput');
     const roundSelect = document.getElementById('roundSelect');
-    const table = document.getElementById('studentsTable').getElementsByTagName('tbody')[0];
+    const statusSelect = document.getElementById('statusSelect');
+    const tbody = document.getElementById('studentsTbody');
+    const downloadBtn = document.getElementById('downloadExcelBtn');
 
-    // Highlight matched roll number
     function highlight(text, search) {
-      if (!search) return text;
-      const regex = new RegExp(`(${search})`, 'gi');
-      return text.replace(regex, '<span class="bg-yellow-200">$1</span>');
+        if (!search) return text;
+        const regex = new RegExp(`(${search})`, 'gi');
+        return text.replace(regex, '<span class="bg-yellow-200">$1</span>');
     }
 
-    // Filter table by search & round
     function filterTable() {
-      const searchValue = searchInput.value.toLowerCase();
-      const selectedRound = roundSelect.value;
+        const searchValue = searchInput.value.trim().toLowerCase();
+        const selectedRound = roundSelect.value;
+        const selectedStatus = statusSelect.value;
 
-      for (let row of table.rows) {
-        const rollCell = row.querySelector('.rollNumber');
-        const round = row.querySelector('.round span').textContent.replace('Round ', '');
+        for (let row of tbody.rows) {
+            const roll = row.dataset.roll.toLowerCase();
+            const round = row.dataset.round;
+            const status = row.dataset.status;
+            const rejectedAt = row.dataset.rejectedAt || '';
 
-        const rollNumber = rollCell.textContent.toLowerCase();
-        const matchesSearch = rollNumber.includes(searchValue);
-        const matchesRound = selectedRound === '' || round === selectedRound;
+            const matchesSearch = searchValue === '' || roll.includes(searchValue);
+            const matchesRound = selectedRound === '' || round === selectedRound || rejectedAt === selectedRound;
+            const matchesStatus = selectedStatus === '' || status === selectedStatus;
 
-        rollCell.innerHTML = highlight(rollCell.textContent, searchValue);
-        row.style.display = (matchesSearch && matchesRound) ? '' : 'none';
-      }
+            const rollTextElem = row.querySelector('.rollText');
+            rollTextElem.innerHTML = highlight(row.dataset.roll, searchValue);
+
+            row.style.display = (matchesSearch && matchesRound && matchesStatus) ? '' : 'none';
+        }
     }
 
     searchInput.addEventListener('input', filterTable);
     roundSelect.addEventListener('change', filterTable);
+    statusSelect.addEventListener('change', filterTable);
 
-    // Promote / Reject actions
-    async function updateStatus(studentId, action, row) {
-      try {
-        const res = await fetch(`/club/students/${studentId}/update-status`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action })
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error('Update failed');
+    // Promote / Reject buttons
+    tbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.promoteBtn, .rejectBtn');
+        if (!btn) return;
 
-        // Update round badge
-        const roundCell = row.querySelector('.round span');
-        roundCell.textContent = `Round ${data.round}`;
-        if(data.round === 1) roundCell.className = 'bg-yellow-200 text-yellow-800 px-2 py-1 rounded font-semibold';
-        else if(data.round === 2) roundCell.className = 'bg-blue-200 text-blue-800 px-2 py-1 rounded font-semibold';
-        else roundCell.className = 'bg-green-200 text-green-800 px-2 py-1 rounded font-semibold';
+        const row = btn.closest('tr');
+        const studentId = row.dataset.id;
+        const action = btn.classList.contains('promoteBtn') ? 'promote' : 'reject';
 
-        // Update status
-        const statusCell = row.querySelector('.status');
-        if(action === 'reject') {
-          const roundValue = row.querySelector('.round span').textContent.replace('Round ', '');
-          statusCell.innerHTML = `<span class="text-red-600 font-semibold">Rejected (Round ${roundValue})</span>`;
-          row.querySelector('td:last-child').innerHTML = `<span class="text-gray-400">N/A</span>`;
-        } else {
-          statusCell.innerHTML = `<span class="text-green-600 font-semibold">${data.status}</span>`;
+        try {
+            const res = await fetch(`/club/students/${studentId}/update-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message || 'Update failed');
+
+            row.dataset.round = String(data.round);
+            row.dataset.status = data.status;
+            row.dataset.rejectedAt = data.rejectedAtRound ? String(data.rejectedAtRound) : '';
+
+            // Update UI
+            const statusCell = row.querySelector('.statusCell');
+            if (data.status === 'Rejected') {
+                statusCell.innerHTML = `<span class="statusText text-red-600 font-semibold">Rejected (Round ${data.rejectedAtRound})</span>`;
+                row.querySelector('.actionCell').innerHTML = `<span class="text-gray-400">N/A</span>`;
+            } else if (data.status === 'Selected') {
+                statusCell.innerHTML = `<span class="statusText text-green-600 font-semibold">Selected</span>`;
+            } else {
+                statusCell.innerHTML = `<span class="statusText text-gray-600 font-semibold">Admitted</span>`;
+            }
+
+            filterTable();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to update status.');
         }
-      } catch (err) {
-        console.error(err);
-        alert('Failed to update status');
-      }
-    }
-
-    document.querySelectorAll('.promoteBtn').forEach(button => {
-      button.addEventListener('click', (e) => {
-        const row = e.target.closest('tr');
-        const studentId = row.dataset.id;
-        updateStatus(studentId, 'promote', row);
-      });
     });
 
-    document.querySelectorAll('.rejectBtn').forEach(button => {
-      button.addEventListener('click', (e) => {
-        const row = e.target.closest('tr');
-        const studentId = row.dataset.id;
-        updateStatus(studentId, 'reject', row);
-      });
-    });
-  </script>
+    // Excel download
+    downloadBtn.addEventListener('click', async () => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Applicants');
 
-</body>
-</html>
+        worksheet.addRow([
+            'Name', 'Roll Number', 'Course', 'Branch', 'Semester',
+            'Email', 'Phone', 'Round', 'Status'
+        ]);
+
+        for (let row of tbody.rows) {
+            if (row.style.display === 'none') continue;
+
+            const cells = row.querySelectorAll('td');
+            const statusText = row.querySelector('.statusText')?.innerText || '';
+            worksheet.addRow([
+                cells[0].innerText,
+                cells[1].innerText,
+                cells[2].innerText,
+                cells[3].innerText,
+                cells[4].innerText,
+                cells[5].innerText,
+                cells[6].innerText,
+                cells[7].innerText,
+                statusText
+            ]);
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Applicants.xlsx";
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+</script>

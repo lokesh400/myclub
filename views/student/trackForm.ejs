@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Status</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-lg bg-white shadow-lg rounded-xl p-8">
+    <h2 class="text-3xl font-bold text-center text-indigo-600 mb-8">Application Status</h2>
+
+    <div class="space-y-4">
+      <div class="flex justify-between border-b pb-2">
+        <strong class="text-gray-700">Name:</strong>
+        <span class="text-gray-900"><%= application.name %></span>
+      </div>
+
+      <div class="flex justify-between border-b pb-2">
+        <strong class="text-gray-700">Roll Number:</strong>
+        <span class="text-gray-900"><%= application.rollNumber %></span>
+      </div>
+
+      <div class="flex justify-between border-b pb-2">
+        <strong class="text-gray-700">Club:</strong>
+        <span class="text-gray-900"><%= application.clubId.name %></span>
+      </div>
+
+      <div class="flex justify-between border-b pb-2">
+        <strong class="text-gray-700">Round:</strong>
+        <span class="px-2 py-1 rounded font-semibold
+          <% if(application.round === 1) { %>bg-yellow-200 text-yellow-800<% } 
+             else if(application.round === 2) { %>bg-blue-200 text-blue-800<% } 
+             else { %>bg-green-200 text-green-800<% } %>">
+          Round <%= application.round %>
+        </span>
+      </div>
+
+      <div class="flex justify-between border-b pb-2">
+        <strong class="text-gray-700">Status:</strong>
+        <span class="font-semibold 
+          <% if(application.status === 'Rejected') { %>text-red-600<% } 
+             else if(application.status === 'Selected') { %>text-green-600<% } 
+             else { %>text-gray-600<% } %>">
+          <% if(application.status === 'Rejected') { %>
+            Rejected (Round <%= application.rejectedAtRound %>)
+          <% } else if(application.status === 'Selected') { %>
+            Selected
+          <% } else { %>
+            Pending
+          <% } %>
+        </span>
+      </div>
+
+      <div class="flex justify-between border-b pb-2">
+        <strong class="text-gray-700">Registered On:</strong>
+        <span class="text-gray-900"><%= new Date(application.createdAt).toLocaleString() %></span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

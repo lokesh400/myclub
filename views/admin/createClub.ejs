@@ -1,9 +1,73 @@
-<% layout('layouts/admin') %>
+<%- include('../flash.ejs') %>
+
 <div class="max-w-md mx-auto bg-white shadow p-6 rounded">
   <h2 class="text-xl font-bold mb-4">Create Club</h2>
-  <form method="post" action="/admin/create-club" class="space-y-4">
+  <form method="post" action="/club/create" class="space-y-4" id="createClubForm">
     <input type="text" name="name" placeholder="Club Name" required class="w-full border px-3 py-2 rounded" />
-    <textarea name="description" placeholder="Description" class="w-full border px-3 py-2 rounded"></textarea>
+    <div>
+      <label class="block font-semibold mb-2">Club Emails</label>
+      <div class="flex gap-2">
+        <input type="email" id="emailInput" placeholder="Enter email" class="flex-1 border px-3 py-2 rounded" />
+        <button type="button" id="addEmailBtn" class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700">Add</button>
+      </div>
+      <ul id="emailList" class="mt-3 space-y-2"></ul>
+    </div>
+
+    <!-- Hidden field to store final array -->
+    <input type="hidden" name="emails" id="emailsField" />
+
     <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Create</button>
   </form>
 </div>
+
+<script>
+  const emailInput = document.getElementById('emailInput');
+  const addEmailBtn = document.getElementById('addEmailBtn');
+  const emailList = document.getElementById('emailList');
+  const emailsField = document.getElementById('emailsField');
+
+  let emails = [];
+
+  function renderEmails() {
+    emailList.innerHTML = '';
+    emails.forEach((email, index) => {
+      const li = document.createElement('li');
+      li.className = "flex justify-between items-center border px-3 py-2 rounded";
+      li.innerHTML = `
+        <span>${email}</span>
+        <button type="button" class="text-red-600 hover:underline" onclick="removeEmail(${index})">Delete</button>
+      `;
+      emailList.appendChild(li);
+    });
+
+    // update hidden field
+    emailsField.value = JSON.stringify(emails);
+  }
+
+  function removeEmail(index) {
+    emails.splice(index, 1);
+    renderEmails();
+  }
+
+  addEmailBtn.addEventListener('click', () => {
+    const email = emailInput.value.trim();
+    if (email && !emails.includes(email)) {
+      emails.push(email);
+      emailInput.value = '';
+      renderEmails();
+    }
+  });
+
+  // allow pressing Enter to add
+  emailInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addEmailBtn.click();
+    }
+  });
+
+  // Ensure hidden field is set before submit
+  document.getElementById('createClubForm').addEventListener('submit', () => {
+    emailsField.value = JSON.stringify(emails);
+  });
+</script>
