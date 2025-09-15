@@ -1,0 +1,47 @@
+<div class="max-w-6xl mx-auto p-6">
+  <h2 class="text-3xl font-bold mb-6">All Forms</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% forms.forEach(form => { %>
+      <div class="bg-white shadow rounded p-5 flex flex-col justify-between">
+        <!-- Form Title -->
+        <h3 class="text-xl font-semibold mb-2"><%= form.title %></h3>
+        
+        <!-- Description -->
+        <p class="text-gray-600 mb-4"><%= form.description || "No description" %></p>
+        
+        <!-- Metadata -->
+        <div class="text-sm text-gray-500 mb-3">
+          <p>Created By: <span class="font-medium"><%= form.createdBy?.username %></span></p>
+          <p>Created At: <%= new Date(form.createdAt).toLocaleString() %></p>
+        </div>
+        
+        <!-- Buttons -->
+        <div class="flex justify-between items-center mt-auto">
+          <!-- View Submissions -->
+          <a href="/forms/<%= form._id %>/submissions"
+             class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700">
+            View Submissions
+          </a>
+
+          <!-- Share Form -->
+          <button onclick="copyLink('<%= form._id %>')"
+                  class="bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600">
+            Share
+          </button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+  function copyLink(formId) {
+    const link = `${window.location.origin}/forms/fill/${formId}`;
+    navigator.clipboard.writeText(link).then(() => {
+      alert("Form link copied: " + link);
+    }).catch(err => {
+      console.error("Failed to copy link: ", err);
+    });
+  }
+</script>

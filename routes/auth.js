@@ -70,7 +70,7 @@ router.post('/signup',ensureAuthenticated,requireRole("superadmin"), async (req,
 // Login
 router.get('/login', (req, res) => {
   res.render('auth/login', { title: "Login",
-    layout: 'layouts/public'  
+    layout: 'layouts/public' 
    });
 });
 

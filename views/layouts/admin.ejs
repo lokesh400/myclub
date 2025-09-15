@@ -9,30 +9,84 @@
 <body class="bg-gray-100 text-gray-800 min-h-screen flex">
 
   <!-- Sidebar -->
-  <aside class="w-64 bg-indigo-700 text-white flex flex-col p-4">
-    <h2 class="text-2xl font-bold mb-6">Admin Panel</h2>
-    <nav class="space-y-2">
-      <a href="/dashboard" class="block px-3 py-2 rounded hover:bg-indigo-600">Dashboard</a>
-      <a href="/applications" class="block px-3 py-2 rounded hover:bg-indigo-600">Applications</a>
-      <a href="/club/new/registration" class="block px-3 py-2 rounded hover:bg-indigo-600">New Recruitment</a>
-      <a href="/club/all/registrations" class="block px-3 py-2 rounded hover:bg-indigo-600">All Recruitments</a>
-      <% if (user && user.role === 'admin') { %>
-        <a href="/new/user" class="block px-3 py-2 rounded hover:bg-indigo-600">Create User</a>
+  <aside class="w-64 bg-white shadow-lg flex flex-col p-4">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Admin Panel</h2>
+    <nav class="flex flex-col space-y-2">
+
+      <a href="/dashboard" class="flex items-center gap-2 px-3 py-2 rounded
+        <%= currentPath === '/dashboard' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a href="/club/new/registration" class="flex items-center gap-2 px-3 py-2 rounded
+        <%= currentPath === '/club/new/registration' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        New Recruitment
+      </a>
+
+      <a href="/club/all/registrations" class="flex items-center gap-2 px-3 py-2 rounded
+        <%= currentPath === '/club/all/registrations' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/>
+        </svg>
+        All Recruitments
+      </a>
+
+      <a href="/forms/create" class="flex items-center gap-2 px-3 py-2 rounded
+        <%= currentPath === '/forms/create' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Create Form
+      </a>
+
+      <a href="/forms/list" class="flex items-center gap-2 px-3 py-2 rounded
+        <%= currentPath === '/forms/list' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h6v6M9 7h6"/>
+        </svg>
+        All Forms
+      </a>
+
+      <% if (user && (user.role === 'admin' || user.role === 'superadmin')) { %>
+        <a href="/new/user" class="flex items-center gap-2 px-3 py-2 rounded
+          <%= currentPath === '/new/user' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Create User
+        </a>
       <% } %>
+
       <% if (user && user.role === 'superadmin') { %>
-        <a href="/signup" class="block px-3 py-2 rounded hover:bg-indigo-600">Create User</a>
+        <a href="/club/create" class="flex items-center gap-2 px-3 py-2 rounded
+          <%= currentPath === '/club/create' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700' %>">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Create Club
+        </a>
       <% } %>
-      <% if (user && user.role === 'superadmin') { %>
-        <a href="/club/create" class="block px-3 py-2 rounded hover:bg-indigo-600">Create Club</a>
-      <% } %>
-      <a href="/logout" class="block px-3 py-2 rounded hover:bg-indigo-600">Logout</a>
+
+      <a href="/logout" class="flex items-center gap-2 px-3 py-2 rounded text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
+        </svg>
+        Logout
+      </a>
+
     </nav>
   </aside>
 
-  <!-- Content -->
+  <!-- Main Content -->
   <main class="flex-grow p-6">
-    <%- include('../flash.ejs') %>
     <%- body %>
   </main>
+
 </body>
 </html>
